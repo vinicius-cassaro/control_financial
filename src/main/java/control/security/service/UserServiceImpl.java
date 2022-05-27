@@ -13,7 +13,7 @@ import control.security.repository.UserRepository;
 import control.security.service.exceptions.EntityNotFoundException;
 import control.security.service.exceptions.HttpUnauthorizedException;
 
-@Service @Transactional
+@Service
 public class UserServiceImpl implements UserService{
 	
 private final UserRepository userRepository;
@@ -23,6 +23,7 @@ private final UserRepository userRepository;
 	}
 
 	@Override
+	@Transactional
 	public UserDTO save(UserModel user) {
 		Assert.hasLength(user.getUserName(), "Campo nome não pode estar em branco");
 		Assert.hasLength(user.getEmail(), "Campo email não pode estar em branco");
@@ -33,26 +34,28 @@ private final UserRepository userRepository;
 	}
 
 	@Override
-	public UserDTO update(Long id, UserModel user, Long idToken) throws Exception {
+	@Transactional
+	public UserDTO update(Long id, UserModel updatedUser, Long idToken) throws Exception {
 		if(id == idToken) {//ou o usuario seja admin
-			var updatedUser = userRepository.findById(id).orElseThrow(() ->  new EntityNotFoundException("Usuario não encontrado"));
-			Assert.hasLength(user.getUserName(), "Campo nome não pode estar em branco");
-			Assert.hasLength(user.getEmail(), "Campo email não pode estar em branco");
-			Assert.hasLength(user.getPassword(), "Campo senha não pode estar em branco");
-			updatedUser.setUserName(user.getUserName());
-			updatedUser.setEmail(user.getEmail());
+			var user = userRepository.findById(id).orElseThrow(() ->  new EntityNotFoundException("Usuario não encontrado"));
+			Assert.hasLength(updatedUser.getUserName(), "Campo nome não pode estar em branco");
+			Assert.hasLength(updatedUser.getEmail(), "Campo email não pode estar em branco");
+			Assert.hasLength(updatedUser.getPassword(), "Campo senha não pode estar em branco");
+			user.setUserName(updatedUser.getUserName());
+			user.setEmail(updatedUser.getEmail());
 			BCryptPasswordEncoder encoder = new BCryptPasswordEncoder();
-			updatedUser.setPassword(encoder.encode(user.getPassword()));
+			user.setPassword(encoder.encode(updatedUser.getPassword()));
 			
-			return UserMapper.convertModelDto(userRepository.save(updatedUser));
+			return UserMapper.convertModelDto(userRepository.save(user));
 		} else {
 			throw new HttpUnauthorizedException("Você não possui autorização para tal operação");
 		}
 	}
 
 	@Override
+	@Transactional
 	public void delete(Long id, Long idToken) throws Exception {
-		if(id == idToken) {//ou o usuario seja admin
+		if(id == idToken) {//TODO: ou o usuario seja admin
 			userRepository.findById(id).orElseThrow(() ->  new EntityNotFoundException("Usuario não encontrado"));
 			userRepository.deleteById(id);
 		} else {

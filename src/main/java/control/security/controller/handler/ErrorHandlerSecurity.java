@@ -10,7 +10,7 @@ import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 
 @ControllerAdvice
-public class ErrorHandler {
+public class ErrorHandlerSecurity {
 
 	@ExceptionHandler(value = java.lang.IllegalArgumentException.class)
 	public ResponseEntity<ErrorResponse> IllegalArgumentException(HttpServletRequest request, Exception exception) {
@@ -23,7 +23,7 @@ public class ErrorHandler {
 	public ResponseEntity<ErrorResponse> EntityNotFoundException(HttpServletRequest request, Exception exception) {
 		//TODO: testar se a mensagem é nula, se sim estoura outra exception
 		var errorResponse = new ErrorResponse(Instant.now(), HttpStatus.NOT_FOUND.value(), "Resorce not found", exception.getMessage(), request.getRequestURI());
-		return ResponseEntity.badRequest().body(errorResponse);
+		return ResponseEntity.status(HttpStatus.NOT_FOUND).body(errorResponse);
 	}
 	
 	@ExceptionHandler(value = control.security.service.exceptions.HttpUnauthorizedException.class)

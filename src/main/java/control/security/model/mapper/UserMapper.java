@@ -19,7 +19,6 @@ public class UserMapper {
 	
 	public static UserModel convertDtoModel(UserDTO userDto) {
 		var userModel = new UserModel();
-		userModel.setId(userDto.getId());
 		userModel.setUserName(userDto.getUserName());
 		userModel.setEmail(userDto.getEmail());
 		userModel.setPassword(userDto.getPassword());
